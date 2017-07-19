@@ -1,0 +1,89 @@
+
+                           EARLY BOOT & KERNEL DEBUGGING
+
+==================================
+I. Debug standard kernel files
+==================================
+
+A script had been created in order to attach GDB debugguer to QEMU with the GUI DDD.
+You can execute it with the classic launching command with the --dbg argument
+
+    sudo bash tools/run/run-qemu.sh --dbg
+
+    | What is hidden behind this script is this bash command: 
+    |   bash  qemu-system-i386 -s -S -drive file=nanvix.iso, format=raw,
+    |   if=ide, media=cdrom -m 256M -mem-prealloc & ddd --debugger "/usr/
+    |   locals/cross/bin/i386-elf-gdb" 
+    | There are 3 main differencies applied to the command by passing argument --dbg: 
+    |   - -s: Makes QEMU to listen on TCP Port 1234 
+    |   - -S: QEMU won't execute anything until it receives the former order continue 
+    |   - ddd --debugger [...]: Launch DDD GUI using GDB.
+
+DDD will automatically makes GDB to attach on QEMU process.
+
+Within DDD, a view of UTILITIES.S script file is provided, so it's easy to debug this file using GUI only. 
+(Doucle-click on the line to create a breakpoint).
+
+Other files debuggable are the ones included in src/kernel (nanvix's kernel),
+and it's possible to creates breakpoints within theses files with the GDB command:
+
+    b src/kernel/[rest of the path]:[line number]
+
+Then, here's some useful GDB's commands:
+    - c: will make QEMU to continue until it reaches the breakpoint. 
+    - s: step into
+         (for example, if current line is kprintf, this will stops the execution at the beginning of kprintf function) 
+    - n: step over
+         (if current line is kprintf, this will execute it and stops execution at the next line in your current file)
+
+To properly debug assembly code, there is specific command:
+    - stepi: can be used to go step by step into an assembly file. 
+
+It's possible to see assembly execution stack with the MACHINE CODE WINDOW (Alt+4 to enable/disable). 
+Assembly code uses a lot of addresses. You can view the content at a given address with this command:
+
+    x /10sb [address] (address must be in hexa)
+
+It's easy to get info on both args and local variables with commands (respectively): 
+	
+    info args
+    info locals 
+
+    | These info are also accessible within the GUI with commands (respectively): Alt+U & Alt+L
+
+==================================================
+II. Debug early boot files (Specifically boot.S)
+==================================================
+
+Some files, even in the kernel, are loaded in a restricted area of the memory, and GDB can't have a direct access to it.
+
+You can't directly see it in the editor, 
+but it's still possible to debug using DDD and GDB by putting a breakpoint on a FUNCTION NAME. 
+
+    | For example, if you want to debug assembly function start in boot.S, use the command: 
+    |   b start 
+    | Then boot.S code is going to be accessible through MACHINE CODE WINDOW
+
+=========================
+III. Kernel log format
+=========================
+
+One useful way of debugging kernel is to use KERNEL LOGS. 
+
+When kprintf is called during execution, a klog entry is also added. 
+The klog is accessible in /dev/klog, and you can view the file using cat for example: 
+
+    cat /dev/klog 
+
+Entries of this file contains also some further information, and are following this format:
+
+    [LOG_LEVEL]: [CLOCKS TICKS]: LOG ENTRY
+
+    [OPTIONNAL] 
+    1) LOG_LEVEL: A digit within [1..7], representing what is the level of this log entry. Levels are lister in klib.h 
+
+    [IF LOG_LEVEL IS DEFINED] 
+    2) CLOCKS TICKS: A signed int representing the number of clocks ticks elapsed since initialization 
+                     to the moment the entry is added 
+
+    3) LOG ENTRY
