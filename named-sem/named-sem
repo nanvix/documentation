@@ -1,0 +1,112 @@
+
+                       			   NAMED SEMAPHORES
+
+This document provides information about the named semaphore implementation in Nanvix. 
+
+Named semaphores come with 5 system calls :
+	* sem_open()
+	* sem_close()
+	* sem_wait()
+	* sem_post()
+	* sem_unlink()
+
+==================
+I. Kernel land
+==================
+
+ * A kernel semaphore structure named struct ksem is implemented inside "/sys/sem.h".
+
+ * A global table named semtable contains all the semaphores of ksem structure. An empty slot is 
+   characterized by a device number equals to zero.
+
+ * At the beginning of each system call except sem_open(), we verify that
+   the process has opened the semaphore : the process PID should appears
+   in currprocs.
+
+=================
+II. User land
+=================
+
+ * An user semaphore structure named struct sem_t is implemented inside "semaphore.h". A typedef
+   is used so the user manipulate semaphore with simply "sem_t".
+
+ * Each semaphore appears in the system file under a special file.
+   These files are only used to check the semaphore presence and
+   the number of references as well as the linking.
+
+ * Each process have a semaphore table named usem initialized in "crt0.c". The
+   purpose of this table is so that multiple call on the same named semaphore
+   inside a same process will return the same address.
+
+=====================
+III. System calls
+=====================
+
+1. sem_open(const char* name, int oflag, int mode, int value)
+   name refers to the absolute path of the semaphore. For instance : "/home/mysem/sem1" will
+   create a semaphore named "sem.sem1" inside the folder named "mysem"
+
+	* USER : If it is the first time the semaphore is opened by the process
+			 a call to malloc() is done.
+
+			 If the process has already opened the semaphore once the address
+			 of the semaphore is returned thanks to the usem table.
+
+	* KERNEL : If the semaphore exists (found in the file system) : it is opened once thanks
+			   to inode_name so the counter reference is incrementend (+1 more process using 
+			   the semaphore). In the corresponding semaphore in the semtable the PID of the
+			   process is added to currprocs. A same process can appear multiple time in
+			   currprocs in order to allow multiple openings.
+
+	     	   If the semaphore doesn't exist : a special file is created corresponding to 
+	     	   the absolute path provided with the "name" parameter. A "sem." prefix is added
+	     	   to the semaphore descriptor. The semaphore is then added to semtable.
+
+2. sem_unlink(const char *name)
+
+   The semaphore identified by its "name" absolute path will be unlinked : making its name
+   available for further uses -> the semaphore will disapear from the file system and only
+   be accessed through its inode number and associated device.
+
+   	* KERNEL : the remove_semaphore (const char *pathname) function will remove the semaphore
+   			   from the file system. After this, the semaphore will still be usable from other
+   			   system calls thanks to the inode number and its associated device.
+
+
+3. sem_close(sem_t* sem)
+
+   * USER : If it is the last instance of the semaphore opened by the given process, the usem
+   			entry will be cleaned and the pointer freed thanks to a call to free().
+
+   * KERNEL : If the semaphore has been unlinked and is still opened only once, then the
+   			  semaphore will be entierely removed : the inode will be deleted thanks to
+   			  to the inode_put() call and also cleaned from semtable thanks to a call to
+   			  freesem(struct ksem *sem).
+
+   			  Otherwise, the PID of the current process will be removed once from the
+   			  currprocs table, and the inode closed once so the reference counter is
+   			  decremented.
+
+4. sem_post(sem_t* sem)
+
+   * KERNEL : A call to sem_post is never blocking. The call will increment the semaphore
+   			  value. If the semaphore's value becomes positive all processes waiting on
+   			  the semaphore sem will be awaken.
+
+5. sem_wait(sem_t *sem)
+   
+   * KERNEL : If the value of the semaphore is <=0 then the current process will be put to
+   			  sleep. Otherwise, the semaphore's value will be decremented and the system
+   			  call will return.
+
+==================
+IV. Unit tests
+==================
+
+Unit tests are implemented in "test.c"
+
+Two unit tests are currently implemented : 
+	
+	* A small producer consumer test : launchable in command line with "test prodcons"
+
+	* A opening / closing test : launchable in command line with "test se"
