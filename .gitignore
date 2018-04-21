@@ -1,3 +1,5 @@
+html-kernel/
+xml-kernel/
 *.aux
 *.bbl
 *.bcf
