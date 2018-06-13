@@ -189,29 +189,6 @@ OPENRISC DESIGN
 		+-----------------------------------+
 		Low addresses                        <- kesp
 
-	FORGE STACK
-		/* General Purpose registers. */
-		l.sw SP(r3)   , r3
-		l.sw GPR2(r3) , r3
-		l.sw GPR3(r3) , r0
-		l.sw GPR9(r3) , r0
-		l.sw GPR4(r3) , r0
-		...
-		l.sw GPR31(r1), r0
-
-		/* EPCR. */
-		l.sw EPCR(r1), r4
-
-		/* EEAR. */
-		l.sw EEAR(r1), r0
-
-		/* ESR. */
-		LOAD_SYMBOL_2_GPR(r15, USER_SR)
-		l.sw ESR(r1), r15
-
-		l.jr r9
-		l.nop
-
 x86 DESIGN
 	Todo
 
