@@ -1,0 +1,196 @@
+                        KERNEL THREAD STACK
+
+DESCRIPTION
+	This document provides information about the Posix Kernel Thread
+	implementation in Nanvix.
+
+	More especially, it focus on the thread stack forging during a call to
+	pthread_create.
+
+OVERVIEW
+	+---------------USER_SPACE-----------------+
+	|                                          |
+	| test_thread------------>pthread_create   |
+	|                                    |     |
+	+------------------------------------|-----+
+	    ^                                v
+	    |                         SYSCALL INTERRUPT
+	    |                                |
+	    |                                v
+	  leave                            enter
+	    |                                |
+	+---|---------KERNEL_SPACE-----------|-----+
+	|   |                                |     |
+	|   |                                v     |
+	|   +--sched<-------sys_pthread_create     |
+	|                                          |
+	|   +->yield--->if thread elected          |
+	|   |                    |                 |
+	|   |                    v                 |
+	|   |              context_switch          |
+	+---|--------------------|-----------------+
+	    |                    |
+	    |                    v
+	CLOCK INTERRUPT        leave
+
+	The function pthread_create prepare a forged stack, and then schedule the
+	thread. The thread will eventually be elect by the sceduler.
+
+	A flag THRD_NEW is set, to avoid a thread state restoration that wasn't save
+	before in the context_switch.
+
+	When leaving the kernel, this forged stack will be loaded as if
+	it was a previously saved thread state.
+
+CONTEXT SWITCH
+	+-------------------------USER_SPACE-------+
+	| old_thread_run------+                    |
+	|                     |                    |
+	| new_thread_run      |                    |
+	+-----^---------------|--------------------+
+	      |               v
+	      |         CLOCK INTERRUPT
+	      |               |
+	+-----|---------------|---KERNEL_SPACE-----+
+	|     |               v                    |
+	|     |             yield                  |
+	|     |               |                    |
+	|     |               v                    |
+	|     |    save_reg_curr_proc_user         |
+	|     |               |                    |
+	|     |               v                    |
+	|     |        context_switch              |
+	|     |               |                    |
+	|     |               v                    |
+	|     |    save_reg_curr_proc_kernel       |
+	|     |               |                    |
+	|     |               |  IF PROC_NEW       |
+	|     |               +------OR--------+   |
+	|     |               |  IF THRD_NEW   |   |
+	|     |               v                |   |
+	|     |   restore_reg_next_proc_kernel |   |
+	|     |               |                |   |
+	|     |               v                |   |
+	|     +---restore_reg_curr_proc_user   |   |
+	|     |                                |   |
+	|     +---leave------------------------+   |
+	+------------------------------------------+
+
+OPENRISC DESIGN
+	CONTENT
+		When leaving the kernel, the system expects to find a thread stack
+		following this template:
+
+		/* Offsets to the registers structure. */
+		#define R0           4  /* Fixed to 0            */
+		#define SP           8  /* Stack pointer         */
+		#define GPR2        12  /* Frame pointer         */
+		#define GPR3        16  /* Function parameters 0 */
+		#define GPR4        20  /* Function parameters 1 */
+		#define GPR5        24  /* Function parameters 2 */
+		#define GPR6        28  /* Function parameters 3 */
+		#define GPR7        32  /* Function parameters 4 */
+		#define GPR8        36  /* Function parameters 5 */
+		#define GPR9        40  /* LR                    */
+		#define GPR10       44  /* Callee saved reg      */
+		#define GPR11       48  /* Return Value RV       */
+		#define GPR12       52  /* Tmp Reg, RVH RV high  */
+		#define GPR13       56  /* Tmp                   */
+		#define GPR14       60  /* Callee saved          */
+		#define GPR15       64  /* Tmp                   */
+		#define GPR17       72  /* ..................... */
+		#define GPR30      124  /* Callee saved          */
+		#define GPR31      128  /* Tmp                   */
+		#define EPCR       132  /* Exception PC Reg      */
+		#define EEAR       136  /* Exception EA          */
+		#define ESR        140  /* Excpt Supervision Reg */
+
+		/* Stack frame size. */
+		#define INT_FRAME_SIZE 144
+
+		GPR2
+			Frame pointer, aka previous stack pointer.
+
+			Here it will be the same as SP because we have no previous SP.
+
+		GPR3 à GPR8
+			Function parameters.
+
+		ESR
+			Supervision Register, we use USER_SR macro for Initial SR register
+			for user space program.
+
+			From the manual : After an exception, the Supervision register (SR)
+			is copied into the ESR. If only one ESR is present in the
+			implementation, it must be saved by the exception handler routine
+			before exception recognition is re-enabled in the SR.
+
+		EPCR
+			Exception PC.
+
+			From the manual : After an exception, the EPCR is set to the program
+			counter address (PC) of the	instruction that was interrupted by the
+			exception.
+
+			If only one EPCR is present in the implementation, it must be saved
+			by the exception handler routine before exception recognition is
+			re-enabled in the SR.
+
+			When leaving the kernel, there's a call to return from exception :
+
+				l.rfe /* SR <- ESR, PC <- EPCR. */
+
+		EEAR
+			Exception Effective Address.
+
+			From the manual : After an exception, the EEAR is set to the
+			effective address (EA) generated by the faulting instruction. If
+			only one EEAR is present in the implementation, it must be saved by
+			the exception handler routine before exception recognition is
+			re-enabled in the SR.
+
+			Not needed in our case.
+
+	MEMORY NOTES
+		An address is 32 bits long.
+
+		A double word is 32 bits long.
+
+		The stack pointer kesp should be double word aligned (kesp & 0x03 == 0).
+
+		The stack is growing downwards.
+
+		+-----------------------------------+
+		| byte 3 | byte 2 | byte 1 | byte 0 | Big Endian
+		+-----------------------------------+
+		| 0x..6d | 0x..6e | 0x..6f | 0x..70 | 0xbeffff70
+		+-----------------------------------+
+		|              32 bits              | 0xbeffff6c
+		+-----------------------------------+
+
+	FORGED THREAD STACK
+		High addresses
+		+-----------------------------------+
+		|               ESR                 |<- kstack
+		+-----------------------------------+
+		|               EEAR                |
+		+-----------------------------------+
+		|               EPCR                |
+		+-----------------------------------+
+		|               GPR31               |
+		+-----------------------------------+
+		|               ....                |
+		+-----------------------------------+
+		|               GPR2                |
+		+-----------------------------------+
+		|                SP                 |
+		+-----------------------------------+
+		|                RO                 |
+		+-----------------------------------+
+		Low addresses                        <- kesp
+
+x86 DESIGN
+	Todo
+
+AUTHORS
+       Guillaume Besnard, <guillaume.besnard@protonmail.com>
