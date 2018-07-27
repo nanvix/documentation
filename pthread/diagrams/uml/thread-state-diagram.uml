@@ -1,0 +1,29 @@
+@startuml
+	[*] --> THRD_DEAD : thread initialization
+	THRD_DEAD : thread is dead and ready to be (re)used
+	THRD_READY : thread is waiting to be scheduled
+	THRD_RUNNING : thread is running on the cpu
+	THRD_WAITING : thread is waiting passively
+	THRD_TERMINATED : thread has terminated but is not yet recycled
+
+	THRD_DEAD --> THRD_READY : fork() or pthread_create()
+	THRD_WAITING --> THRD_READY : wakeup_join(), resume execution
+	THRD_READY --> THRD_RUNNING : scheduling
+	THRD_RUNNING --> THRD_READY : preemption
+	THRD_RUNNING --> THRD_WAITING : join(), suspend execution
+	THRD_RUNNING --> THRD_TERMINATED : pthread_exit() or return 
+	THRD_TERMINATED --> THRD_DEAD : thread detached or joined 
+
+	state THRD_RUNNING {
+		[*] --> KERNEL_MODE
+		KERNEL_MODE : code running in kernel mode
+		USER_MODE : code running in user mode
+		USER_MODE --> KERNEL_MODE : hw/sw interrupt
+		KERNEL_MODE --> USER_MODE : return interrupt
+	}
+
+	note left of THRD_DEAD
+		All states can reach THRD_DEAD 
+		if the process exits.
+	end note
+@enduml
