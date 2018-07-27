@@ -73,7 +73,9 @@ CONTEXT SWITCH
 	|     |               v                |   |
 	|     +---restore_reg_curr_proc_user   |   |
 	|     |                                |   |
-	|     +---leave------------------------+   |
+	|     +---leave------------IF PROC_NEW-+   |
+	|     |                                |   |
+	|     +---leave.out--------IF THRD_NEW-+   |
 	+------------------------------------------+
 
 OPENRISC DESIGN
