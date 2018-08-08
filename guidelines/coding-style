@@ -8,7 +8,7 @@ Nanvix project.
 I. Indentation
 ==================
 
- * Indentation should be 4 characters long and use tab characters.
+ * Tab characters should be used for indentation.
  
  * Do not user spaces for indentation.
 
