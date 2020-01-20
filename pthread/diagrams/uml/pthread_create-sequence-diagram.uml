@@ -1,0 +1,78 @@
+@startuml
+
+box "User-Land" #LightBlue
+	participant user_program
+	participant libc
+end box
+
+box "Kernel-Land" #LightGrey
+	participant sys_pthread_create
+	participant scheduler
+	participant hal
+	participant mm
+	participant thread
+	participant sys_pthread_exit
+end box
+
+box "User-Land" #LightBlue
+	participant start_thread
+	participant thread_routine
+end box
+
+activate user_program
+user_program -> libc : pthread_create(..., thread_routine, ...)
+
+deactivate user_program
+activate libc
+libc -> sys_pthread_create : sw_int syscall
+
+deactivate libc
+activate sys_pthread_create
+sys_pthread_create -> thread : get_free_thread()
+
+activate thread
+sys_pthread_create -> mm : dupreg() && allocreg()
+
+deactivate thread
+activate mm
+sys_pthread_create -> hal : forge_stack()
+
+deactivate mm
+activate hal
+sys_pthread_create -> scheduler : yield()
+
+deactivate hal
+deactivate sys_pthread_create
+activate scheduler
+scheduler -> libc : leave()
+
+activate libc
+libc -> user_program : return
+
+deactivate libc
+deactivate scheduler
+deactivate sys_pthread_create
+deactivate libc
+activate user_program
+user_program -> scheduler : hw_int do_clock() && quantum == 0
+
+deactivate user_program
+activate scheduler
+scheduler -> hal : yield()
+
+activate hal
+hal -> start_thread : switch_to() --> pthread_create_leave()
+
+deactivate scheduler
+deactivate hal
+activate start_thread
+start_thread -> thread_routine : thread_routine()
+
+activate thread_routine
+start_thread -> sys_pthread_exit : sw_int syscall
+
+deactivate thread_routine
+deactivate start_thread
+activate sys_pthread_exit
+
+@enduml
