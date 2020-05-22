@@ -1,11 +1,12 @@
-# Building and Running
+Building & Running
+------------------
+
 **1. Clone This Repository**
 
 ```
 export WORKDIR=$HOME                                    # Change this at your will
 cd $WORKDIR                                             # Go to working directory
 git clone --recursive https://github.com/nanvix/hal.git # Clone the source tree
-
 ```
 
 **2. Get the Development Toolchain**
@@ -13,54 +14,53 @@ git clone --recursive https://github.com/nanvix/hal.git # Clone the source tree
 Install build dependencies.
 
 ```
-cd $WORKDIR/hal                             # Enter the source tree
-sudo bash tools/dev/setup-prerequisites.sh  # Get essential tools for building
-
+cd $WORKDIR/hal                                # Enter the source tree
+sudo bash utils/nanvix-setup-prerequisites.sh  # Get essential tools for building
 ```
 
-Export the name of the target:
+Export the name of the desired target:
 
 ```
 export TARGET=qemu-x86      # QEMU x86
 export TARGET=qemu-openrisc # QEMU OpenRISC
 export TARGET=optimsoc      # OpTiMSoC
 export TARGET=qemu-riscv32  # QEMU RISC-V 32-Bit (experimental)
-export TARGET=unix64        # Virtualized Platform 
-
+export TARGET=unix64        # Virtualized Platform
 ```
 
-If you chose  `unix64`  as a target, run the following command and go to step 3:
+if you choose `unix64` as a target, run the following command and go to step 3:
+
+`sudo bash utils/nanvix-setup-unix.sh #configure virtual resources.`
+
+Otherwise, Build the toolchain itself:
 
 ```
-sudo bash utils/nanvix-setup-unix.sh #configure virtual resources.
-
-```
-
-Otherwise, build the toolchain itself:
-
-```
-bash tools/dev/setup-toolchain.sh
-
+bash utils/setup-toolchain.sh
 ```
 
 Build simulators:
 
 ```
-sudo bash tools/dev/setup-qemu.sh
+sudo bash utils/setup-qemu.sh
+```
 
+Add simulators to your path:
+
+```
+export PATH=$PATH:$WORKDIR/hal/toolchain/qemu/bin
 ```
 
 **3. Build the HAL**
 
 ```
-make contrib   # build dependencies
-make distclean # ensure a clean working directory
-make all       # build the HAL
-
+make contrib             # Build submodules
+make contrib-uninstall   # Ensure clean submodules
+make distclean           # Ensure a clean working directory.
+make all                 # Build the HAL.
 ```
 
 **4. Run Regression Tests (optional)**
 
 ```
-make test
+make run            # 
 ```
