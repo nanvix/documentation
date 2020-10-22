@@ -30,3 +30,10 @@ Asymmetric Microkernel Design for Lightweight Manycores. SBESC 2019 - IX
 Brazilian Symposium on Computing Systems Engineering, Nov 2019, Natal,
 Brazil. hal-02297637
 [[PDF](https://hal.archives-ouvertes.fr/hal-02297637)]
+
+- João Uller, João Souto, Pedro Henrique Penna, Márcio Castro, Henrique
+  Cota Freitas, Jean-François Méhaut. Enhancing Programmability in
+NoC-Based Lightweight Manycore Processors with a Portable MPI Library.
+WSCAD 2020 - XXI Simpósio em Sistemas Computacionais de Alto Desempenho.
+Oct 2020, Online, Brazil. hal-02975094
+[[PDF](https://hal.archives-ouvertes.fr/hal-02975094)]
