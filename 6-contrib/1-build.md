@@ -18,7 +18,7 @@ Install build dependencies.
 
 ```
 cd $WORKDIR'/hal/utils'                   # Enter the source tree
-sudo bash nanvix-setup-prerequisites.sh # Get essential tools for building
+sudo bash nanvix-setup-prerequisites.sh   # Get essential tools for building
 ```
 
 Export the name of the desired target:
