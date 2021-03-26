@@ -17,8 +17,8 @@ git clone --recursive https://github.com/nanvix/hal.git # Clone the source tree
 Install build dependencies.
 
 ```
-cd $WORKDIR/hal/utils                   # Enter the source tree
-sudo bash nanvix-setup-prerequisites.sh # Get essential tools for building
+cd $WORKDIR'/hal/utils'                   # Enter the source tree
+sudo bash nanvix-setup-prerequisites.sh   # Get essential tools for building
 ```
 
 Export the name of the desired target:
@@ -49,13 +49,13 @@ bash nanvix-setup-qemu.sh
 Add simulators to your path:
 
 ```
-export PATH=$PATH:$WORKDIR/hal/utils/toolchain/qemu/bin
+export PATH=$PATH':'$WORKDIR'/hal/utils/toolchain/qemu/bin'
 ```
 
 **3. Build**
 
 ```
-cd $WORDKIR/hal
+cd $WORKDIR'/hal'
 make distclean           # Ensure a clean working directory.
 make contrib-uninstall   # Ensure clean submodules.
 make contrib             # Build submodules.
