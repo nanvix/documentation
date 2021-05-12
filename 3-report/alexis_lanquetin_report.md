@@ -30,6 +30,31 @@ I figured out how to implement PMU and I committed my work.
 
 ```
 [x] Writing this Report
-[ ] Read documentation about the Memory stuff (MMU, TLB..)
+[X] Read documentation about the Memory stuff (MMU, TLB..)
+```
+The goal during this week was to read as much documentation as possible about how memory work on ARM64 Architecture. I was already a bit familiar with pagination and MMU, so I went through this task with ease. However, I had to figure out how does Translation Lookaside Buffer work.
+Thursday afternoon, I had a meeting with Pedro, Jean-François and Marcio where I explained my research. It appears that in ARM, there are up to three translation level but Nanvix support only two. Plus, I have to go deeper in the understanding of how exactly all these things (The Page Directory, Page Table, Registers...) are defined and implemented in order to develop this feature.
+
+Firstly, all the other OS implementation of the MMU for ARM I've found use mask to implement PTE, PDE, and PMD. Therefore, I've tried to do it this way, but I've figured out that it would be easier and clearer to keep the same structure used in Nanvix.
+This was not an easy part because I had to understand how does MMU and TLB work on Nanvix in order to adapt my researches and implement it. I made some understanding mistake but I think that I have a good picture now and the next week I'll start the implementation.
+
+You can fin some main sources I've used to understand how memory work:
+
+- https://armv8-ref.codingbelief.com/en/preface.html
+- https://git.es.eti.uni-siegen.de/mschmidt/linux-stable-mcs/-/tree/master/arch/arm64/include
+- https://developer.arm.com/documentation/101811/0101/Translation-Lookaside-Buffer-maintenance
+- https://cs140e.sergio.bz/docs/ARMv8-A-Programmer-Guide.pdf (page 162)
+- https://wenboshen.org/posts/2018-09-09-page-table.html
+- https://www.google.com/url?sa=t&rct=j&q=&esrc=s&source=web&cd=&ved=2ahUKEwjqnLm-nMTwAhWGmRQKHQi7BKMQFjACegQIBBAD&url=https%3A%2F%2Fdocumentation-service.arm.com%2Fstatic%2F5efa1d23dbdee951c1ccdec5%3Ftoken%3D&usg=AOvVaw38hHvTbFXER-_BItcS9O3Z
+
+## **Week 3** - _05/10/21 - 05/12/21_
+
+### Objectives
+
+```
+[ ] Define the structures PTE, PDE
+[ ] Define the missing translation level PMD
+[ ] Enable the MMU
+[ ] Enable TLB
 ```
 
