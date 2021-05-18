@@ -52,9 +52,32 @@ You can fin some main sources I've used to understand how memory work:
 ### Objectives
 
 ```
-[ ] Define the structures PTE, PDE
-[ ] Define the missing translation level PMD
+[x] Define the structures PTE, PDE
+[x] Define the missing translation level PMD (level 2)
 [ ] Enable the MMU
 [ ] Enable TLB
 ```
+During this week, I defined the structures required for pagination (PTE, PDE and the missing one, PMD). I also defined some parameters, such as mask, shifts or size.
+Everything compiles and tests passe!
+The objectives for the next week are to enable MMU and defines TLB.
 
+You can fin some main sources I've used to define these structures:
+
+- https://armv8-ref.codingbelief.com/en/chapter_d4/d43_3_memory_attribute_fields_in_the_vmsav8-64_translation_table_formats_descriptors.html?q=
+- https://armv8-ref.codingbelief.com/en/chapter_d4/d43_1_vmsav8-64_translation_table_descriptor_formats.html
+- https://git.es.eti.uni-siegen.de/mschmidt/linux-stable-mcs/-/blob/master/arch/arm64/include/asm/pgtable-hwdef.h
+
+## **Week 4** - _05/17/21 - 05/21/21_
+
+### Objectives
+
+```
+[ ] Enable the MMU
+[ ] Enable TLB
+[ ] Define TLBe
+```
+
+You can fin some main sources I've used to define TLBe and enable MMU:
+
+- https://developer.arm.com/documentation/ddi0500/j/Level-1-Memory-System/Direct-access-to-internal-memory/TLB-RAM-accesses?lang=en#CHDFGIAB
+- https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit/Translating-a-Virtual-Address-to-a-Physical-Address/Configuring-and-enabling-the-MMU
