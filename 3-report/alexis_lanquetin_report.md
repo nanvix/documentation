@@ -74,10 +74,17 @@ You can fin some main sources I've used to define these structures:
 ```
 [ ] Enable the MMU
 [ ] Enable TLB
-[ ] Define TLBe
+[X] Flushing TLB
+[X] Define TLBe
 ```
 
-You can fin some main sources I've used to define TLBe and enable MMU:
+After a discussion with Pedro, I've figured out that the TLB is managed by the hardware and not the software, which explains why I had trouble to find how to implement it (i.e. to define TLB struct, TLB entry struct, TLB initialization). This is why I spent few days to fail to find anything and lost some times. But anyway, at the end of this week, I now have a look on how enable the mmu and the tlb. 
+For now, I undergo issues to write in the System Control Register (EL1) (SCTLR_EL1), which provides top level control of the system, including its memory system, at EL1 and EL0. I am currently working with José on it, because he has used this register.
+
+You can fin some main sources I've used to enable MMU and TLB:
 
 - https://developer.arm.com/documentation/ddi0500/j/Level-1-Memory-System/Direct-access-to-internal-memory/TLB-RAM-accesses?lang=en#CHDFGIAB
 - https://developer.arm.com/documentation/den0024/a/The-Memory-Management-Unit/Translating-a-Virtual-Address-to-a-Physical-Address/Configuring-and-enabling-the-MMU
+- https://code.govanify.com/govanify/coreboot-navi/src/branch/master/payloads/libpayload/arch/arm64/mmu.c
+- http://web.cs.wpi.edu/~cs4515/d15/Protected/LecturesNotes_D15/CS4515-TeamB-Report.pdf
+- https://github.com/bztsrc/raspi3-tutorial/blob/master/10_virtualmemory/mmu.c
