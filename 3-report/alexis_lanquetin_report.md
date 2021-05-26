@@ -88,3 +88,18 @@ You can fin some main sources I've used to enable MMU and TLB:
 - https://code.govanify.com/govanify/coreboot-navi/src/branch/master/payloads/libpayload/arch/arm64/mmu.c
 - http://web.cs.wpi.edu/~cs4515/d15/Protected/LecturesNotes_D15/CS4515-TeamB-Report.pdf
 - https://github.com/bztsrc/raspi3-tutorial/blob/master/10_virtualmemory/mmu.c
+- https://chromium.googlesource.com/chromiumos/third_party/coreboot/+/broadwell_fsp/src/arch/arm64/armv8/cache.c?autodive=0%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F%2F
+- https://android.googlesource.com/kernel/msm.git/+/android-msm-anthias-3.10-lollipop-wear-release/arch/arm64/mm/cache.S
+
+## **Week 5** - _05/25/21 - 05/28/21_
+
+### Objectives
+
+```
+[X] Enable the MMU
+[X] Enable TLB
+[ ] Flush/Invalidate dCache
+```
+
+For now, it seems that I successfully enable the MMU. There was a bug with cpu cortex-a53 which started with qemu and the qemu boot the cortex-a53 on the EL1 and not on EL3, so the initial configs that should expected to be done were skipped. To fix that, I talk with José, and I turned on the machine secure on qemu. This is why I had problems using the ARM's registers.
+However, it seems that turning on the machine secure block interruption. In fact, during the test "test_interrupt_enable_disable" in test/core/interrupt.c, the interruption doesn't work. I'm still investigating.
