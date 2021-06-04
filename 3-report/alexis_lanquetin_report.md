@@ -103,3 +103,30 @@ You can fin some main sources I've used to enable MMU and TLB:
 
 For now, it seems that I successfully enable the MMU. There was a bug with cpu cortex-a53 which started with qemu and the qemu boot the cortex-a53 on the EL1 and not on EL3, so the initial configs that should expected to be done were skipped. To fix that, I talk with José, and I turned on the machine secure on qemu. This is why I had problems using the ARM's registers.
 However, it seems that turning on the machine secure block interruption. In fact, during the test "test_interrupt_enable_disable" in test/core/interrupt.c, the interruption doesn't work. I'm still investigating.
+The problem seems to appears because when we enable the mmu, the next instruction pass through the mmu, so this instruction need to be finded using the virtual adress
+José seems confident that nothing was wrong with the exception level.
+
+## **Week 6** - _05/31/21 - 06/04/21_
+
+### Objectives
+```
+[ ] Fix the mmu and map correctly VA to PA
+[ ] Start the intership report & presentation
+[ ] Understand what's going on in the linker file
+```
+
+Jean François Mehaut send a link to the Barrelfish code, an other Operating system that has been proted to ARMV8. First, I was pretty happy to see that my code I write about enable the MMU was correct, because they basically do the same. I also find one other OS, FluxOS, which was more simple than BarrelFish. But it appears that something is wrong with the linker file and the mapping of the virtual adresses.
+I was pretty stuck, don't really know what to do, plus I was sick tuesday afternoon and wednesday, but José did some pretty good work : First of all, there were some missing informations in the linker file, so he set the adress on linker file to 0xffff to load the kernel on that adress. According to him, "it seems that the code is loaded on the bottom of the RAM and the linker file is only to create the symbol table". So he has created the page tables on boot.S (code from NBOS) and enable the mmu right before jumping to 0xffff00000000. Thus, we can correctly find the next instruction and the mmu works.
+Plus, José mergered our branches (the mmu and the exception level) into a new one.
+Now, on the boot.S there is 2 regions that are mapped
+```
+0x4000 0000 to 0xffff 0000     (the kernel logical space)
+0x4000 0000 to 0x4000 0000 0     (User space ? where the VA adresses are mapped to the same PA adresses
+```
+
+
+- https://android.googlesource.com/kernel/msm/+/android-msm-dory-3.10-kitkat-wear/Documentation/arm64/memory.txt
+- https://github.com/zhulangpi/NBOS
+- https://github.com/BarrelfishOS/barrelfish
+- https://github.com/flomath/fluxos
+- https://en.wikipedia.org/wiki/Data_segment#Program_memory
