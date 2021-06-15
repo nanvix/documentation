@@ -54,8 +54,8 @@ You can fin some main sources I've used to understand how memory work:
 ```
 [x] Define the structures PTE, PDE
 [x] Define the missing translation level PMD (level 2)
-[ ] Enable the MMU
-[ ] Enable TLB
+[x] Enable the MMU
+[x] Enable TLB
 ```
 During this week, I defined the structures required for pagination (PTE, PDE and the missing one, PMD). I also defined some parameters, such as mask, shifts or size.
 Everything compiles and tests passe!
@@ -72,10 +72,8 @@ You can fin some main sources I've used to define these structures:
 ### Objectives
 
 ```
-[ ] Enable the MMU
-[ ] Enable TLB
 [X] Flushing TLB
-[X] Define TLBe
+[-] Define TLBe
 ```
 
 After a discussion with Pedro, I've figured out that the TLB is managed by the hardware and not the software, which explains why I had trouble to find how to implement it (i.e. to define TLB struct, TLB entry struct, TLB initialization). This is why I spent few days to fail to find anything and lost some times. But anyway, at the end of this week, I now have a look on how enable the mmu and the tlb. 
@@ -98,7 +96,7 @@ You can fin some main sources I've used to enable MMU and TLB:
 ```
 [X] Enable the MMU
 [X] Enable TLB
-[ ] Flush/Invalidate dCache
+[x] Flush/Invalidate dCache
 ```
 
 For now, it seems that I successfully enable the MMU. There was a bug with cpu cortex-a53 which started with qemu and the qemu boot the cortex-a53 on the EL1 and not on EL3, so the initial configs that should expected to be done were skipped. To fix that, I talk with José, and I turned on the machine secure on qemu. This is why I had problems using the ARM's registers.
@@ -110,8 +108,7 @@ José seems confident that nothing was wrong with the exception level.
 
 ### Objectives
 ```
-[ ] Fix the mmu and map correctly VA to PA
-[ ] Start the intership report & presentation
+[x] Fix the mmu and map correctly VA to PA
 [ ] Understand what's going on in the linker file
 ```
 
@@ -124,9 +121,27 @@ Now, on the boot.S there is 2 regions that are mapped
 0x4000 0000 to 0x4000 0000 0     (User space ? where the VA adresses are mapped to the same PA adresses
 ```
 
-
 - https://android.googlesource.com/kernel/msm/+/android-msm-dory-3.10-kitkat-wear/Documentation/arm64/memory.txt
 - https://github.com/zhulangpi/NBOS
 - https://github.com/BarrelfishOS/barrelfish
 - https://github.com/flomath/fluxos
 - https://en.wikipedia.org/wiki/Data_segment#Program_memory
+
+## **Week 7** - _06/07/21 - 06/11/21_
+
+### Objectives
+```
+[x] Start the intership report & presentation
+[ ] Find what's going on on memory.c and define corectly this space
+```
+
+During this week, I've worked on the MMU and fixed the last problem that remained: An interruption was raised because of a problem in the GIC module. The NBOS source code was very helpfull! After fixing that, everything seems to be good! I'll still ensure the next week that everything works properly.
+I've figured out that the memory is mapped in the file memory.h and memory.c, I am investigating about how this mapping work, and in which way it is used within Nanvix.
+Also, I've start to work on my presentation and final report. I had a meeting with Yiles FALCONE, who will assist to my final presentation. So I've prepared a powerpoint to explain everything I've done since the beginning of my internship, and he gave me useful advices about layout of my presentation and the content.
+
+## **Week 8** - _06/14/21 - 06/18/21_
+
+### Objectives
+```
+[ ] Ensure that everything work
+```
