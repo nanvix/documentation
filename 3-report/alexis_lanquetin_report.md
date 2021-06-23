@@ -145,3 +145,29 @@ Also, I've start to work on my presentation and final report. I had a meeting wi
 ```
 [ ] Ensure that everything work
 ```
+During this week, I tried, unsuccessfully, to map correctly the memory region. However, I undergo some issues:
+
+  During the boot, we manually map and populate the different memory regions. This work but I now try to move this during the initialization of the memory (mem_init).To do so, I first correctly define the memory region struct in src/arch/cluster/arm64-cluster/memory.c.
+So here I want to define various memory regions (Kernel, user, UART, module...). But this structure seems to be defined for 32 bits architecture and thus, the size of, for example, the kernel, which is 512 GB, exceed the max value of the size_t (the type of the field size in the memory region struct).So I have to find a solution about it
+  Secondly I have to deal with three translation level where Nanvix support only 2 level. Maybe we can just use two levels (because ARM is flexible enough to use either 2 or 3 and even 4 translation level). So I have to figure out what to do now!
+  And thirdly, I have to define a proper memory layout which match with all the constraints and match with Nanvix implementation.
+
+- https://www.kernel.org/doc/html/latest/arm64/memory.html
+- https://stackoverflow.com/questions/51928583/how-to-intepret-the-virtual-kernel-memory-layout-on-arm64 (good diagram)
+
+## **Week 9** - _06/21/21 - 06/25/21_
+
+### Objectives
+```
+[x] Move the assembly boot code in C, to make it clearer and adapt it more easly
+[ ] Define a correct Memory Layout
+[ ] Make it run with 2 translation level
+[ ] A third translation ?
+```
+
+(inline assembly)
+- https://www.ic.unicamp.br/~celio/mc404-s2-2015/docs/ARM-GCC-Inline-Assembler-Cookbook.pdf
+- https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html
+(memory management)
+- https://s-matyukevich.github.io/raspberry-pi-os/docs/lesson06/rpi-os.html
+- https://www.programmersought.com/article/66402046964/
