@@ -165,9 +165,39 @@ So here I want to define various memory regions (Kernel, user, UART, module...).
 [ ] A third translation ?
 ```
 
+This week was tough due to the lack of idea. I didn't really what to do in order to make it work. In fact, the mmu work but not in the way it should. We don't use corretly the nanvix architerure and we map everything manually.
+In order to have a better view of the initilisation we made during the boot, I have adapt the code in C, which make it very clear and compact, easier to use and to change. I also comment everything, because José and Pedro sould have a meeting next week to discuss about this issue.
+
 (inline assembly)
 - https://www.ic.unicamp.br/~celio/mc404-s2-2015/docs/ARM-GCC-Inline-Assembler-Cookbook.pdf
 - https://gcc.gnu.org/onlinedocs/gcc/Extended-Asm.html
 (memory management)
 - https://s-matyukevich.github.io/raspberry-pi-os/docs/lesson06/rpi-os.html
 - https://www.programmersought.com/article/66402046964/
+
+## **Week 10** - _06/28/21 - 07/02/21_
+
+### Objectives
+```
+[X] Define a correct Memory Layout (according to the Qemu Layout and Or1k layout)
+[x] Adapt boot code 
+[x] Use 2 translation level
+[ ] Ensure that everything's working
+```
+
+This week, José had a meeting with Pedro in order to discuss a little bit about what we've done so far and about the memory layout. It appears that what we've done was way to complex for Nanvix, that support only light and simple specification.In fact, Nanvix doesn't support kernel virtual mapping (PA = VA), doesn't support 2 separate memory region for user and kernel, doesn't support more than 2 translation level and we can't, as Pedro said, change Nanvix this way. We have to adapt ARM and using just some specification to make it run. Plus, we have to define the virtual memory layout according to the Qemu layout. We'll have to simplifie many things and adapt ARM to Nanvix. Also, we'll have to change the granule to 4kb to 64 kb in order to use only 2 translation level.
+
+So I made the modification required aka:
+- Define properly the memory layout.
+- Delete the boot code.
+- Change the granule and make the according to modifications.
+- Change the link.ld file
+- Change the arm64_mmu_setup function according to the modifications.
+
+After these modifications, i undergo an issue when I try to enable the MMU (set the m bit to 1 in the sctlr register) because after that, the next instruction should pass through the memory. Thus, the problem is either on the pagination (during the mem_setup), or I don't correctly define the value of some register. I'll try to figure out this issue next week.
+
+Qemu virtual mem layout for Arm64
+- https://github.com/qemu/qemu/blob/master/hw/arm/virt.c
+Arm64 64kb page def
+- https://android.googlesource.com/kernel/msm.git/+/android-msm-anthias-3.10-lollipop-wear-release/arch/arm64/include/asm/pgtable-2level-hwdef.h
+- https://android.googlesource.com/kernel/msm.git/+/android-msm-anthias-3.10-lollipop-wear-release/arch/arm64/include/asm/pgtable-2level-types.h
