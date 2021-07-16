@@ -206,11 +206,40 @@ Arm64 64kb page def
 ## **Week 11** - _07/05/21 - 07/09/21_
 
 ### Objectives
+
 ```
-[] Fix the mmu
+[ ] Fix the mmu
 ```
 
 After everything done above, the problem concerning the MMU still wasn't fixed.
 I had a meeting on thursday to discuss about this problem with Marcio and he told me that he would discuss with Joao Souto, another Nanvix maintener who worked on the MMU on anohter architecture. Since then, I'm waiting for some hint from him, or any idea he could have to help me about this problem.
 I ended the week by starting to write my report.
+
+## **Week 12** - _07/12/21 - 07/16/21_
+
+### Objectives
+```
+[ ] Look at the boot for the Nanvix educationnal OS
+```
+
+As I'm still stuck with the MMU problem, Mr Mehaut told me to have a closer look on the boot on the Nanvix educationnal system. This work would be a nice help for him if, the next week, he would talk to the next students about how Nanvix (or generally speaking, on OS), boot.
+Nanvix educational is quite different from what I've done so far and from what I used to work on.
+Firstly, this OS is way more simple than the Nanvix reseach, and many things are manually hardcoded.
+Secondly, it runs on x86 (intel) and it runs on Bosch, a different virtualized platform than Qemu (The platform I used to use.) x86 is a CISC type architecture, wich is also different from ARM (RISC type).
+However, as I was waiting for the Thursday meeting, I paid attention to the boot system.
+For now, it seems that it's pretty much the same as the Nanvix Research, except that it's more simple. The lack of comment and the fact that many things are hardcoded doesn't help me, plus I don't understand x86 syntax.
+
+But I had a meeting Thursday with Marcio and Joao and this last had many things to tell me about the work. He found a problem with the root_pgtab_num that I've defined for each memory region.
+Here is comment about the bug (he has already fixed it):
+"This value refers to the directory index. Since the MMU relies on the field [41-29] to discover this index, the address ARM64_CLUSTER_KERNEL_BASE_VIR (0x40000000UL) is mapped to the entry 2 (0x40000000UL >> 29) . So the MMU tries to use index 2 to translate something that is set in the index 0"
+
+I've listed below the next objectives I have to fulfill, thanks to all comments he made:
+```
+[ ] Check if the memory layout is correct (Does the mem_layout structure have the correct values ? Are the memory regions with the correct addresses ?
+[ ] Check memory mapping (perform mannualy translation to see if the va is correctly map, va = pa)
+[ ] Ensure we are configuring the MMU for desired paging (values set in the various registers that control the translation are correct
+[x] Ensure that the structure, and values, of the PDE and PTE are correct  
+[x] Ensure which EL you are using (the MMU might be enable at wrong level)
+[ ] Ensure TLB and Cache disable/invalidation before enabling MMU
+```
 
