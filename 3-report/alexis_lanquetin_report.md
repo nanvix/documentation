@@ -201,3 +201,16 @@ Qemu virtual mem layout for Arm64
 Arm64 64kb page def
 - https://android.googlesource.com/kernel/msm.git/+/android-msm-anthias-3.10-lollipop-wear-release/arch/arm64/include/asm/pgtable-2level-hwdef.h
 - https://android.googlesource.com/kernel/msm.git/+/android-msm-anthias-3.10-lollipop-wear-release/arch/arm64/include/asm/pgtable-2level-types.h
+
+
+## **Week 11** - _07/05/21 - 07/09/21_
+
+### Objectives
+```
+[] Fix the mmu
+```
+
+After everything done above, the problem concerning the MMU still wasn't fixed.
+I had a meeting on thursday to discuss about this problem with Marcio and he told me that he would discuss with Joao Souto, another Nanvix maintener who worked on the MMU on anohter architecture. Since then, I'm waiting for some hint from him, or any idea he could have to help me about this problem.
+I ended the week by starting to write my report.
+
